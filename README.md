@@ -28,7 +28,7 @@ Before the system, stock, roasting, orders and bills lived in disconnected sprea
 | Module | Scope | Status |
 |---|---|---|
 | Authentication & access control | Google sign-in, user allow-list, roles, role-based navigation, audit trail | ✅ Sign-in, roles and user management |
-| Master data | Farms, suppliers, green coffees, packaging, products (SKUs), customers, financial categories and accounts | Planned |
+| Master data | Farms, suppliers, green coffees, packaging, products (SKUs), customers, financial categories and accounts | ✅ CRUD with search, deactivation and CPF/CNPJ validation |
 | Purchasing | Purchase orders, receiving, cancellation and reversal, installment payables | Planned |
 | Inventory | Stock positions, movement ledger, minimum-stock alerts, inventory adjustments, storage location | Planned |
 | Production | Own harvest intake, roasting (weight loss and cost), packing (bag cost, freshness) | Planned |
@@ -180,7 +180,7 @@ Integration tests **drop and recreate** the `public` schema of the test database
 | Phase | Deliverable |
 |---|---|
 | 0. Foundation | Repository, schema, migrations, Google sign-in, roles, user management, deployment ✅ (deployment pending) |
-| 1. Master data | CRUD for all master entities with deactivation of referenced records |
+| 1. Master data | CRUD for all master entities with deactivation of referenced records ✅ |
 | 2. Inventory + purchasing | Stock ledger, weighted average cost, purchase receiving, payables |
 | 3. Production | Own harvest, roasting, packing, freshness alerts |
 | 4. Sales | Quote-to-delivery flow, cancellation with reversals, PDF receipts |
