@@ -1,0 +1,16 @@
+[project]
+name = "colinas-cafes-erp"
+version = "0.1.0"
+requires-python = ">=3.12,<3.14"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["docs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "N"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
