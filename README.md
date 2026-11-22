@@ -93,7 +93,7 @@ colinas-cafes-erp/
 ### 1. Install dependencies
 
 ```bash
-git clone <repository-url> colinas-cafes-erp
+git clone https://github.com/P3DROVFX/colinas-cafes-erp.git
 cd colinas-cafes-erp
 python3.12 -m venv .venv
 source .venv/bin/activate
