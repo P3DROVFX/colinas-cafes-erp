@@ -3,3 +3,45 @@ toolbarMode = "minimal"
 
 [server]
 runOnSave = false
+
+[theme]
+base = "light"
+primaryColor = "#6b3119"
+backgroundColor = "#f7f3ec"
+secondaryBackgroundColor = "#f1ebe1"
+textColor = "#261913"
+linkColor = "#33461c"
+linkUnderline = false
+borderColor = "#928069"
+showWidgetBorder = true
+dataframeBorderColor = "#d9ccb9"
+dataframeHeaderBackgroundColor = "#f1ebe1"
+dataframeHeaderTextColor = "#5c4b3e"
+font = "Manrope:https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+headingFont = "Bricolage Grotesque:https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap"
+baseFontSize = 16
+headingFontSizes = ["2.25rem", "1.75rem", "1.375rem", "1.125rem", "1rem", "0.875rem"]
+headingFontWeights = [700, 600, 600, 600, 600, 600]
+metricValueFontSize = "2rem"
+metricValueFontWeight = 700
+baseRadius = "0.75rem"
+buttonRadius = "full"
+redColor = "#b3261e"
+redBackgroundColor = "#fbdcd6"
+redTextColor = "#b3261e"
+greenColor = "#2f6b3a"
+greenBackgroundColor = "#d9eedb"
+greenTextColor = "#2f6b3a"
+orangeColor = "#8f5a00"
+orangeBackgroundColor = "#fbe7bd"
+orangeTextColor = "#8f5a00"
+blueColor = "#34566b"
+blueBackgroundColor = "#dbe7ee"
+blueTextColor = "#34566b"
+grayColor = "#928069"
+grayBackgroundColor = "#f1ebe1"
+grayTextColor = "#5c4b3e"
+
+[theme.sidebar]
+backgroundColor = "#f1ebe1"
+secondaryBackgroundColor = "#ffffff"
