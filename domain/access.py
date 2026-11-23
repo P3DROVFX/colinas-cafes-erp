@@ -28,6 +28,8 @@ class Permission(StrEnum):
     RECEIVE_PURCHASES = "RECEIVE_PURCHASES"
     CANCEL_PURCHASES = "CANCEL_PURCHASES"
     ADJUST_INVENTORY = "ADJUST_INVENTORY"
+    VIEW_PRODUCTION = "VIEW_PRODUCTION"
+    MANAGE_PRODUCTION = "MANAGE_PRODUCTION"
     VIEW_INTEGRITY = "VIEW_INTEGRITY"
 
 
@@ -43,6 +45,8 @@ ROLE_PERMISSIONS: dict[Role, frozenset[Permission]] = {
             Permission.VIEW_PURCHASES,
             Permission.MANAGE_PURCHASES,
             Permission.RECEIVE_PURCHASES,
+            Permission.VIEW_PRODUCTION,
+            Permission.MANAGE_PRODUCTION,
         }
     ),
     Role.SALES: frozenset({Permission.MANAGE_CUSTOMERS}),
@@ -56,7 +60,7 @@ ROLE_PERMISSIONS: dict[Role, frozenset[Permission]] = {
             Permission.VIEW_INTEGRITY,
         }
     ),
-    Role.VIEWER: frozenset({Permission.VIEW_FINANCE, Permission.VIEW_PURCHASES}),
+    Role.VIEWER: frozenset({Permission.VIEW_FINANCE, Permission.VIEW_PURCHASES, Permission.VIEW_PRODUCTION}),
 }
 
 
