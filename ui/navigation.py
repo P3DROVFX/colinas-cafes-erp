@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit.navigation.page import StreamlitPage
 
 from domain.access import Permission, User, has_permission
+from ui.pages.cash_flow import render_cash_flow_page
 from ui.pages.customers import render_customers_page
 from ui.pages.farms import render_farms_page
 from ui.pages.finance_entries import render_finance_entries_page
@@ -9,17 +10,21 @@ from ui.pages.finance_setup import render_finance_setup_page
 from ui.pages.green_coffees import render_green_coffees_page
 from ui.pages.harvests import render_harvests_page
 from ui.pages.home import render_home_page
+from ui.pages.income_statement import render_income_statement_page
 from ui.pages.integrity import render_integrity_page
 from ui.pages.packaging import render_packaging_page
 from ui.pages.packing import render_packing_page
 from ui.pages.products import render_products_page
 from ui.pages.purchases import render_purchases_page
+from ui.pages.reconciliation import render_reconciliation_page
 from ui.pages.roasting import render_roasting_page
 from ui.pages.sales import render_sales_page
+from ui.pages.settings import render_settings_page
 from ui.pages.stock import render_stock_page
 from ui.pages.stock_ledger import render_stock_ledger_page
 from ui.pages.suppliers import render_suppliers_page
 from ui.pages.users import render_users_page
+from ui.session import remember_pages
 
 
 def _master_data_pages(user: User) -> list[StreamlitPage]:
@@ -71,6 +76,15 @@ def _operation_sections(user: User) -> dict[str, list[StreamlitPage]]:
                 icon=":material/payments:",
                 url_path="contas",
             ),
+            st.Page(
+                render_cash_flow_page, title="Fluxo de caixa", icon=":material/monitoring:", url_path="fluxo-de-caixa"
+            ),
+            st.Page(
+                render_reconciliation_page, title="Conciliação", icon=":material/fact_check:", url_path="conciliacao"
+            ),
+            st.Page(
+                render_income_statement_page, title="Resultado (DRE)", icon=":material/query_stats:", url_path="dre"
+            ),
         ]
     return sections
 
@@ -79,6 +93,8 @@ def _administration_pages(user: User) -> list[StreamlitPage]:
     pages = []
     if has_permission(user, Permission.MANAGE_USERS):
         pages.append(st.Page(render_users_page, title="Usuários", icon=":material/group:", url_path="usuarios"))
+    if has_permission(user, Permission.MANAGE_SETTINGS):
+        pages.append(st.Page(render_settings_page, title="Parâmetros", icon=":material/tune:", url_path="parametros"))
     if has_permission(user, Permission.VIEW_INTEGRITY):
         pages.append(
             st.Page(
@@ -98,4 +114,5 @@ def build_navigation(user: User) -> StreamlitPage:
     }
     if administration := _administration_pages(user):
         sections["Administração"] = administration
+    remember_pages([page for pages in sections.values() for page in pages])
     return st.navigation(sections, expanded=True)

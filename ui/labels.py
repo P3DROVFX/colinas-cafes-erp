@@ -1,7 +1,7 @@
 from domain.access import Role
 from domain.brazil import PersonType
 from domain.catalog import Grind, PackagingKind, Process, RoastProfile
-from domain.finance import AccountKind, DreGroup, EntryDisplayStatus, EntryType
+from domain.finance import AccountKind, DreGroup, EntryDisplayStatus, EntryType, Granularity, SettlementMethod
 from domain.inventory import AdjustmentReason, MovementType, SourceModule, StockItemKind, StockStatus
 from domain.partners import Segment, SupplyType
 from domain.production import RoastBatchStatus
@@ -175,4 +175,19 @@ SALE_STATUS_BADGES: dict[SaleDisplayStatus, BadgeStyle] = {
     SaleDisplayStatus.SHIPPED: ("Expedida", "orange", ":material/local_shipping:"),
     SaleDisplayStatus.DELIVERED: ("Entregue", "green", ":material/check_circle:"),
     SaleDisplayStatus.CANCELLED: ("Cancelada", "gray", ":material/block:"),
+}
+
+SETTLEMENT_METHOD_LABELS: dict[SettlementMethod, str] = {
+    SettlementMethod.PIX: "PIX",
+    SettlementMethod.TRANSFER: "Transferência",
+    SettlementMethod.BANK_SLIP: "Boleto",
+    SettlementMethod.CASH: "Dinheiro",
+    SettlementMethod.DEBIT_CARD: "Cartão de débito",
+    SettlementMethod.CREDIT_CARD: "Cartão de crédito",
+}
+
+GRANULARITY_LABELS: dict[Granularity, str] = {
+    Granularity.DAY: "Dia",
+    Granularity.WEEK: "Semana",
+    Granularity.MONTH: "Mês",
 }

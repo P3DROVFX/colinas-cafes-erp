@@ -18,6 +18,11 @@ def format_currency(value: Decimal | float | int) -> str:
     return f"R$ {formatted}"
 
 
+def format_signed_currency(value: Decimal) -> str:
+    """Leading sign so metric deltas show the right direction."""
+    return f"{'-' if value < 0 else '+'}{format_currency(abs(value))}"
+
+
 def format_unit_cost(value: Decimal) -> str:
     """Unit costs keep four decimals only when the cents alone would hide part of the value."""
     places = 2 if value == round(value, 2) else 4
