@@ -34,10 +34,15 @@ class Permission(StrEnum):
     MANAGE_SALES = "MANAGE_SALES"
     CANCEL_SALES = "CANCEL_SALES"
     APPROVE_DISCOUNTS = "APPROVE_DISCOUNTS"
+    MANAGE_FINANCE = "MANAGE_FINANCE"
+    REVERSE_SETTLEMENTS = "REVERSE_SETTLEMENTS"
+    MANAGE_SETTINGS = "MANAGE_SETTINGS"
     VIEW_INTEGRITY = "VIEW_INTEGRITY"
 
 
-ADMIN_ONLY_PERMISSIONS = frozenset({Permission.MANAGE_USERS, Permission.BACKDATE_OPERATIONS})
+ADMIN_ONLY_PERMISSIONS = frozenset(
+    {Permission.MANAGE_USERS, Permission.BACKDATE_OPERATIONS, Permission.MANAGE_SETTINGS}
+)
 
 ROLE_PERMISSIONS: dict[Role, frozenset[Permission]] = {
     Role.ADMIN: frozenset(Permission),
@@ -62,6 +67,7 @@ ROLE_PERMISSIONS: dict[Role, frozenset[Permission]] = {
             Permission.VIEW_PURCHASES,
             Permission.MANAGE_PURCHASES,
             Permission.VIEW_INTEGRITY,
+            Permission.MANAGE_FINANCE,
         }
     ),
     Role.VIEWER: frozenset(
