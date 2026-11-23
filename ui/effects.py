@@ -3,20 +3,20 @@ import streamlit as st
 from domain.effects import EntryChange, OperationEffects, StockChange
 from domain.finance import EntryType
 from domain.inventory import format_quantity
-from ui.formatting import format_currency
+from ui.formatting import format_currency, format_unit_cost
 
 EFFECTS_KEY = "operation_effects"
 ENTRY_TYPE_NAMES = {EntryType.PAYABLE: "A pagar", EntryType.RECEIVABLE: "A receber"}
 
 
-def remember_effects(title: str, effects: OperationEffects) -> None:
-    st.session_state[EFFECTS_KEY] = (title, effects)
+def remember_effects(title: str, effects: OperationEffects, details: list[str] | None = None) -> None:
+    st.session_state[EFFECTS_KEY] = (title, effects, details or [])
 
 
 def _stock_line(change: StockChange) -> str:
     before = format_quantity(change.kind, change.before)
     after = format_quantity(change.kind, change.after)
-    return f"{change.label}: {before} → **{after}** · custo {format_currency(change.unit_cost)}"
+    return f"{change.label}: {before} → **{after}** · custo {format_unit_cost(change.unit_cost)}"
 
 
 def _entry_line(entry: EntryChange) -> str:
@@ -28,9 +28,11 @@ def show_effects() -> None:
     remembered = st.session_state.pop(EFFECTS_KEY, None)
     if remembered is None:
         return
-    title, effects = remembered
+    title, effects, details = remembered
     with st.container(border=True):
         st.success(title, icon=":material/check_circle:")
+        for detail in details:
+            st.markdown(detail)
         stock_column, finance_column = st.columns(2)
         with stock_column:
             st.markdown("**Estoque**")

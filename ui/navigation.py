@@ -7,11 +7,14 @@ from ui.pages.farms import render_farms_page
 from ui.pages.finance_entries import render_finance_entries_page
 from ui.pages.finance_setup import render_finance_setup_page
 from ui.pages.green_coffees import render_green_coffees_page
+from ui.pages.harvests import render_harvests_page
 from ui.pages.home import render_home_page
 from ui.pages.integrity import render_integrity_page
 from ui.pages.packaging import render_packaging_page
+from ui.pages.packing import render_packing_page
 from ui.pages.products import render_products_page
 from ui.pages.purchases import render_purchases_page
+from ui.pages.roasting import render_roasting_page
 from ui.pages.stock import render_stock_page
 from ui.pages.stock_ledger import render_stock_ledger_page
 from ui.pages.suppliers import render_suppliers_page
@@ -44,6 +47,12 @@ def _operation_sections(user: User) -> dict[str, list[StreamlitPage]]:
     if has_permission(user, Permission.VIEW_PURCHASES):
         sections["Compras"] = [
             st.Page(render_purchases_page, title="Compras", icon=":material/shopping_cart:", url_path="compras"),
+        ]
+    if has_permission(user, Permission.VIEW_PRODUCTION):
+        sections["Produção"] = [
+            st.Page(render_harvests_page, title="Colheitas", icon=":material/grass:", url_path="colheitas"),
+            st.Page(render_roasting_page, title="Torras", icon=":material/local_fire_department:", url_path="torras"),
+            st.Page(render_packing_page, title="Envases", icon=":material/shopping_bag:", url_path="envases"),
         ]
     sections["Estoque"] = [
         st.Page(render_stock_page, title="Posição de estoque", icon=":material/inventory_2:", url_path="estoque"),

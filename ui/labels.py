@@ -4,6 +4,7 @@ from domain.catalog import Grind, PackagingKind, Process, RoastProfile
 from domain.finance import AccountKind, DreGroup, EntryDisplayStatus, EntryType
 from domain.inventory import AdjustmentReason, MovementType, SourceModule, StockItemKind, StockStatus
 from domain.partners import Segment, SupplyType
+from domain.production import RoastBatchStatus
 from domain.purchasing import PurchaseStatus
 
 ROLE_LABELS: dict[Role, str] = {
@@ -139,4 +140,9 @@ STOCK_STATUS_LABELS: dict[StockStatus, str] = {
     StockStatus.OK: "OK",
     StockStatus.BELOW_MINIMUM: "Abaixo do mínimo",
     StockStatus.EMPTY: "Zerado",
+}
+
+ROAST_BATCH_STATUS_BADGES: dict[RoastBatchStatus, BadgeStyle] = {
+    RoastBatchStatus.OPEN: ("Aberto", "orange", ":material/local_fire_department:"),
+    RoastBatchStatus.CLOSED: ("Encerrado", "gray", ":material/inventory:"),
 }

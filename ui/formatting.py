@@ -6,6 +6,7 @@ import pandas as pd
 from pandas.io.formats.style import Styler
 
 from domain.brazil import only_digits
+from domain.numbers import format_decimal
 
 
 def format_datetime(value: datetime | None) -> str:
@@ -15,6 +16,12 @@ def format_datetime(value: datetime | None) -> str:
 def format_currency(value: Decimal | float | int) -> str:
     formatted = f"{value:,.2f}".replace(",", "_").replace(".", ",").replace("_", ".")
     return f"R$ {formatted}"
+
+
+def format_unit_cost(value: Decimal) -> str:
+    """Unit costs keep four decimals only when the cents alone would hide part of the value."""
+    places = 2 if value == round(value, 2) else 4
+    return f"R$ {format_decimal(value, places)}"
 
 
 def format_document(value: str | None) -> str:
