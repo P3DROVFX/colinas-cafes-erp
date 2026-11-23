@@ -159,7 +159,18 @@ Integration tests **drop and recreate** the `public` schema of the test database
 - `sql/001_schema.sql` is the source of truth for the physical model: tables, foreign keys, CHECK constraints, indexes, `updated_at` triggers and row level security.
 - `sql/002_reference_data.sql` loads data every environment needs: settings, financial categories, cash and bank accounts, and the generic "Consumidor Final" customer.
 - Migrations are named `NNN_description.sql`, applied in order and recorded in `schema_migrations`. Once a migration has run in a shared environment, it is never edited. Changes go in a new migration.
-- A **seed script** for development and test databases (`scripts/seed.py`, months of realistic operations generated through the service layer) is planned. It will never run against production unless that is explicitly requested.
+- The **history seed** fills a development database with six months of operations generated through the service layer (purchases, harvests, roasting, packing, sales in the three channels, settlements and adjustments), with deterministic business scenarios for the BI:
+
+  ```bash
+  python -m scripts.seed --profile full    # June 2026 to yesterday, about 870 sales
+  python -m scripts.seed --profile small   # last 14 days, used by the tests
+  ```
+
+  It refuses databases that already have sales and any database whose name does not end in `_dev` or `_test`, unless `--allow-production` is passed.
+
+## Documentation
+
+- [`docs/documento_tecnico_va1.md`](docs/documento_tecnico_va1.md): technical document of the first evaluation (Portuguese), with screenshots, data model, integration, business rules, architecture and validation.
 
 ## Deployment
 
@@ -185,5 +196,5 @@ Integration tests **drop and recreate** the `public` schema of the test database
 | 3. Production | Own harvest, roasting, packing, freshness alerts ✅ |
 | 4. Sales | Quote-to-delivery flow, cancellation with reversals, PDF receipts ✅ |
 | 5. Finance + admin | Expenses, settlement, cash flow, reconciliation, income statement, settings, integrity panel ✅ |
-| 6. VA1 delivery | Development seed, test coverage, technical documentation |
+| 6. VA1 delivery | Development seed, test coverage, technical documentation ✅ |
 | 7–9. VA2 | Analytical views, dashboards, data analysis and recommendations |
