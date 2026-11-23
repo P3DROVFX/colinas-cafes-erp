@@ -45,3 +45,19 @@ def test_ensure_permission_raises_for_missing_permission():
 )
 def test_master_data_permissions_follow_role_matrix(role, permission, allowed):
     assert has_permission(make_user(role), permission) is allowed
+
+
+@pytest.mark.parametrize(
+    ("role", "can_view", "can_manage"),
+    [
+        (Role.MANAGER, True, True),
+        (Role.PRODUCTION, True, True),
+        (Role.SALES, False, False),
+        (Role.FINANCE, False, False),
+        (Role.VIEWER, True, False),
+    ],
+)
+def test_production_permissions_follow_role_matrix(role, can_view, can_manage):
+    user = make_user(role)
+    assert has_permission(user, Permission.VIEW_PRODUCTION) is can_view
+    assert has_permission(user, Permission.MANAGE_PRODUCTION) is can_manage

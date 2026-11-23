@@ -3,7 +3,16 @@ from decimal import Decimal
 
 from domain.access import User
 from domain.brazil import PersonType
-from domain.catalog import FarmInput, GreenCoffeeInput, PackagingItemInput, PackagingKind, Process
+from domain.catalog import (
+    FarmInput,
+    GreenCoffeeInput,
+    Grind,
+    PackagingItemInput,
+    PackagingKind,
+    Process,
+    ProductInput,
+    RoastProfile,
+)
 from domain.inventory import StockItemKind
 from domain.partners import SupplierInput, SupplyType
 from domain.purchasing import PurchaseInput, PurchaseItemInput
@@ -19,6 +28,7 @@ class DemoCatalog:
     bag_id: int
     label_id: int
     box_id: int
+    product_id: int
 
     def coffee_purchase(self, **changes) -> PurchaseInput:
         values = {
@@ -61,4 +71,31 @@ def build_demo_catalog(manager: User) -> DemoCatalog:
         PackagingItemInput("Caixa de envio P", PackagingKind.SHIPPING_BOX, 2000),
     ]
     bag_id, label_id, box_id = (catalog_service.create_packaging_item(manager, item) for item in packaging)
-    return DemoCatalog(coffee_supplier_id, packaging_supplier_id, coffee_id, bag_id, label_id, box_id)
+    product_id = catalog_service.create_product(manager, demo_product(coffee_id, bag_id, label_id))
+    return DemoCatalog(coffee_supplier_id, packaging_supplier_id, coffee_id, bag_id, label_id, box_id, product_id)
+
+
+def demo_product(
+    coffee_id: int, bag_id: int, label_id: int, profile: RoastProfile = RoastProfile.MEDIUM
+) -> ProductInput:
+    return ProductInput(
+        "Boa Vista Catuaí – Torra Média – Em grãos – 250 g",
+        coffee_id,
+        profile,
+        Grind.WHOLE_BEAN,
+        250,
+        bag_id,
+        label_id,
+        Decimal("49.90"),
+        Decimal("54.90"),
+    )
+
+
+def create_own_coffee(manager: User) -> int:
+    farm_id = catalog_service.create_farm(
+        manager, FarmInput("Fazenda Colinas", "Garanhuns", "PE", "Família Colinas", True, None, 900)
+    )
+    return catalog_service.create_green_coffee(
+        manager,
+        GreenCoffeeInput("COLBOU", "Colinas Bourbon Amarelo", farm_id, "Bourbon Amarelo", Process.NATURAL, 2026),
+    )

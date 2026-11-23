@@ -11,6 +11,10 @@ PAGES = [
     ("stock_ledger", "render_stock_ledger_page", "Extrato de estoque"),
     ("finance_entries", "render_finance_entries_page", "Contas a pagar e a receber"),
     ("integrity", "render_integrity_page", "Painel de integridade"),
+    ("harvests", "render_harvests_page", "Colheitas"),
+    ("roasting", "render_roasting_page", "Torras"),
+    ("packing", "render_packing_page", "Envases"),
+    ("home", "render_home_page", "Olá, Manager!"),
 ]
 
 
@@ -37,4 +41,19 @@ def test_production_creates_orders(make_user):
 
 def test_integrity_panel_reports_all_checks_ok(make_user):
     app = run_page("integrity", "render_integrity_page", make_user(Role.FINANCE))
-    assert app.metric[0].value == "3 de 3"
+    assert app.metric[0].value == "6 de 6"
+
+
+@pytest.mark.parametrize(
+    ("module", "function", "action"),
+    [
+        ("harvests", "render_harvests_page", "Nova colheita"),
+        ("roasting", "render_roasting_page", "Nova torra"),
+        ("packing", "render_packing_page", "Novo envase"),
+    ],
+)
+def test_production_pages_offer_actions_only_to_production_staff(make_user, module, function, action):
+    assert action in button_labels(run_page(module, function, make_user(Role.PRODUCTION)))
+    viewer_app = run_page(module, function, make_user(Role.VIEWER))
+    assert not viewer_app.exception
+    assert action not in button_labels(viewer_app)
