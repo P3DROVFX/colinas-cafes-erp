@@ -6,6 +6,7 @@ from domain.inventory import AdjustmentReason, MovementType, SourceModule, Stock
 from domain.partners import Segment, SupplyType
 from domain.production import RoastBatchStatus
 from domain.purchasing import PurchaseStatus
+from domain.sales import Channel, DeliveryType, PaymentMethod, SaleDisplayStatus
 
 ROLE_LABELS: dict[Role, str] = {
     Role.ADMIN: "Administrador",
@@ -145,4 +146,33 @@ STOCK_STATUS_LABELS: dict[StockStatus, str] = {
 ROAST_BATCH_STATUS_BADGES: dict[RoastBatchStatus, BadgeStyle] = {
     RoastBatchStatus.OPEN: ("Aberto", "orange", ":material/local_fire_department:"),
     RoastBatchStatus.CLOSED: ("Encerrado", "gray", ":material/inventory:"),
+}
+
+CHANNEL_LABELS: dict[Channel, str] = {
+    Channel.LOCAL: "Loja",
+    Channel.ONLINE: "Online",
+    Channel.WHOLESALE: "Atacado",
+}
+
+DELIVERY_TYPE_LABELS: dict[DeliveryType, str] = {
+    DeliveryType.PICKUP: "Retirada na loja",
+    DeliveryType.LOCAL_DELIVERY: "Entrega local",
+    DeliveryType.SHIPPING: "Envio",
+}
+
+PAYMENT_METHOD_LABELS: dict[PaymentMethod, str] = {
+    PaymentMethod.PIX: "PIX",
+    PaymentMethod.CASH: "Dinheiro",
+    PaymentMethod.DEBIT_CARD: "Cartão de débito",
+    PaymentMethod.CREDIT_CARD: "Cartão de crédito",
+    PaymentMethod.BANK_SLIP: "Boleto a prazo",
+}
+
+SALE_STATUS_BADGES: dict[SaleDisplayStatus, BadgeStyle] = {
+    SaleDisplayStatus.QUOTE: ("Orçamento", "blue", ":material/request_quote:"),
+    SaleDisplayStatus.EXPIRED: ("Orçamento expirado", "orange", ":material/timer_off:"),
+    SaleDisplayStatus.CONFIRMED: ("Confirmada", "violet", ":material/check:"),
+    SaleDisplayStatus.SHIPPED: ("Expedida", "orange", ":material/local_shipping:"),
+    SaleDisplayStatus.DELIVERED: ("Entregue", "green", ":material/check_circle:"),
+    SaleDisplayStatus.CANCELLED: ("Cancelada", "gray", ":material/block:"),
 }

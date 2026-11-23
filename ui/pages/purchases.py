@@ -21,6 +21,7 @@ from domain.purchasing import (
 from services import partners as partners_service
 from services import purchases as purchases_service
 from services.purchases import PurchaseDetail, PurchaseFilters
+from ui.documents import purchase_order_pdf
 from ui.effects import remember_effects, show_effects
 from ui.feedback import show_flash
 from ui.formatting import format_currency, style_numbers, to_float
@@ -303,6 +304,13 @@ def _render_actions(actor: User, detail: PurchaseDetail) -> None:
         can_reverse = status is PurchaseStatus.RECEIVED and has_permission(actor, Permission.CANCEL_PURCHASES)
         if can_reverse and st.button("Estornar recebimento", icon=":material/undo:"):
             st.dialog("Estornar recebimento")(_render_reverse_dialog)(actor, detail)
+        st.download_button(
+            "Pedido em PDF",
+            data=purchase_order_pdf(detail),
+            file_name=f"{detail.purchase['number']}.pdf",
+            mime="application/pdf",
+            icon=":material/picture_as_pdf:",
+        )
 
 
 def _render_items_tab(detail: PurchaseDetail) -> None:

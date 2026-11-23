@@ -15,6 +15,7 @@ from ui.pages.packing import render_packing_page
 from ui.pages.products import render_products_page
 from ui.pages.purchases import render_purchases_page
 from ui.pages.roasting import render_roasting_page
+from ui.pages.sales import render_sales_page
 from ui.pages.stock import render_stock_page
 from ui.pages.stock_ledger import render_stock_ledger_page
 from ui.pages.suppliers import render_suppliers_page
@@ -44,6 +45,10 @@ def _master_data_pages(user: User) -> list[StreamlitPage]:
 
 def _operation_sections(user: User) -> dict[str, list[StreamlitPage]]:
     sections: dict[str, list[StreamlitPage]] = {}
+    if has_permission(user, Permission.VIEW_SALES):
+        sections["Vendas"] = [
+            st.Page(render_sales_page, title="Vendas", icon=":material/point_of_sale:", url_path="vendas"),
+        ]
     if has_permission(user, Permission.VIEW_PURCHASES):
         sections["Compras"] = [
             st.Page(render_purchases_page, title="Compras", icon=":material/shopping_cart:", url_path="compras"),

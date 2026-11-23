@@ -20,7 +20,7 @@ def _stock_line(change: StockChange) -> str:
 
 
 def _entry_line(entry: EntryChange) -> str:
-    verb = "cancelado" if entry.action == "cancelled" else f"vence {entry.due_date:%d/%m/%Y}"
+    verb = {"cancelled": "cancelado", "settled": "já liquidado"}.get(entry.action, f"vence {entry.due_date:%d/%m/%Y}")
     return f"{ENTRY_TYPE_NAMES[entry.entry_type]} {format_currency(entry.amount)} · {entry.description} · {verb}"
 
 
