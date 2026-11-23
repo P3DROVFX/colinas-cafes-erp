@@ -1,0 +1,62 @@
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
+
+from psycopg import Connection
+
+from core.db import transaction
+from domain.access import Permission, User, ensure_permission
+from domain.inventory import StockItemKind
+from repositories import integrity as integrity_repository
+
+
+@dataclass(frozen=True, slots=True)
+class IntegrityCheck:
+    code: str
+    title: str
+    run: Callable[[Connection], list[dict[str, Any]]]
+
+
+@dataclass(frozen=True, slots=True)
+class IntegrityResult:
+    code: str
+    title: str
+    divergences: list[dict[str, Any]]
+
+    @property
+    def passed(self) -> bool:
+        return not self.divergences
+
+
+def _for_every_stock_kind(
+    query: Callable[[Connection, StockItemKind], list[dict[str, Any]]],
+) -> Callable[[Connection], list[dict[str, Any]]]:
+    def run(connection: Connection) -> list[dict[str, Any]]:
+        return [row for kind in StockItemKind for row in query(connection, kind)]
+
+    return run
+
+
+CHECKS: tuple[IntegrityCheck, ...] = (
+    IntegrityCheck(
+        "I1",
+        "Saldo de cada item é igual à soma dos movimentos",
+        _for_every_stock_kind(integrity_repository.stock_differs_from_movements),
+    ),
+    IntegrityCheck(
+        "I2",
+        "Saldo após o último movimento é igual ao saldo atual",
+        _for_every_stock_kind(integrity_repository.last_balance_differs_from_stock),
+    ),
+    IntegrityCheck(
+        "I5",
+        "Compras recebidas têm títulos a pagar com o valor e o número de parcelas corretos",
+        integrity_repository.received_purchases_with_wrong_payables,
+    ),
+)
+
+
+def run_integrity_checks(actor: User) -> list[IntegrityResult]:
+    ensure_permission(actor, Permission.VIEW_INTEGRITY)
+    with transaction(actor.email) as connection:
+        return [IntegrityResult(check.code, check.title, check.run(connection)) for check in CHECKS]

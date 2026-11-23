@@ -1,6 +1,6 @@
-from datetime import date
 from typing import Any
 
+from core.clock import today
 from core.db import transaction
 from core.errors import BusinessRuleError
 from domain.access import Permission, User, ensure_permission
@@ -27,7 +27,7 @@ DUPLICATE_ACCOUNT_MESSAGE = "Já existe uma conta com este nome."
 
 
 def list_financial_categories(actor: User, search: str = "", include_inactive: bool = False) -> list[dict[str, Any]]:
-    ensure_permission(actor, Permission.VIEW_FINANCE_SETUP)
+    ensure_permission(actor, Permission.VIEW_FINANCE)
     with transaction(actor.email) as connection:
         return finance_setup_repository.list_financial_categories(connection, search, include_inactive)
 
@@ -66,21 +66,21 @@ def set_financial_category_active(actor: User, category_id: int, is_active: bool
 
 
 def list_financial_accounts(actor: User, search: str = "", include_inactive: bool = False) -> list[dict[str, Any]]:
-    ensure_permission(actor, Permission.VIEW_FINANCE_SETUP)
+    ensure_permission(actor, Permission.VIEW_FINANCE)
     with transaction(actor.email) as connection:
         return finance_setup_repository.list_financial_accounts(connection, search, include_inactive)
 
 
 def create_financial_account(actor: User, data: FinancialAccountInput) -> int:
     ensure_permission(actor, Permission.MANAGE_FINANCE_SETUP)
-    data = validate_financial_account(data, date.today())
+    data = validate_financial_account(data, today())
     with duplicate_guard(DUPLICATE_ACCOUNT_MESSAGE), transaction(actor.email) as connection:
         return records.insert_record(connection, MasterTable.FINANCIAL_ACCOUNTS, record_values(data))
 
 
 def update_financial_account(actor: User, account_id: int, data: FinancialAccountInput) -> None:
     ensure_permission(actor, Permission.MANAGE_FINANCE_SETUP)
-    data = validate_financial_account(data, date.today())
+    data = validate_financial_account(data, today())
     values = record_values(data)
     with duplicate_guard(DUPLICATE_ACCOUNT_MESSAGE), transaction(actor.email) as connection:
         account = load_record(connection, MasterTable.FINANCIAL_ACCOUNTS, account_id)

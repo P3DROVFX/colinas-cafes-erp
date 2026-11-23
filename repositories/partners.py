@@ -25,7 +25,7 @@ def list_supplier_options(
 ) -> list[dict[str, Any]]:
     return connection.execute(
         """
-        SELECT id, name FROM suppliers
+        SELECT id, name, supply_type, lead_time_days FROM suppliers
         WHERE supply_type = %s AND (is_active OR id = %s)
         ORDER BY name
         """,
