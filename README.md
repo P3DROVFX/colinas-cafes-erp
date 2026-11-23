@@ -33,8 +33,8 @@ Before the system, stock, roasting, orders and bills lived in disconnected sprea
 | Inventory | Stock positions, movement ledger, minimum-stock alerts, inventory adjustments, storage location | ✅ Single movement path with weighted average cost, positions, ledger, adjustments |
 | Production | Own harvest intake, roasting (weight loss and cost), packing (bag cost, freshness) | ✅ Harvest with payable, roasting with weight-loss limits, packing with batch compatibility, batch closing, freshness alerts |
 | Sales | Quotes, orders, invoicing, shipping, delivery, cancellation, receipts | ✅ Quotes with validity, confirmation with cost snapshots, card fees and credit checks, shipping, delivery, cancellation with reversals, PDF receipts |
-| Finance | Payables and receivables, operating expenses, settlement, cash flow, reconciliation, income statement | 🟡 Entries from purchases, harvests and sales; entry list |
-| Administration | Users, settings, data integrity panel | 🟡 Users and integrity panel (stock, purchase, production and sales checks) |
+| Finance | Payables and receivables, operating expenses, settlement, cash flow, reconciliation, income statement | ✅ Manual entries with recurrence, batch settlement, settlement reversal, realised and forecast cash flow, reconciliation, monthly accrual income statement |
+| Administration | Users, settings, data integrity panel | ✅ Users, audited settings, integrity panel (9 checks), role-aware home with alerts |
 | Business Intelligence (VA2) | Analytical views, KPIs, dashboards, alerts | Planned |
 
 Every integrated operation runs in a **single database transaction**, so receiving a purchase, roasting, packing or confirming a sale either updates stock, finance and history together or changes nothing.
@@ -184,6 +184,6 @@ Integration tests **drop and recreate** the `public` schema of the test database
 | 2. Inventory + purchasing | Stock ledger, weighted average cost, purchase receiving, payables ✅ |
 | 3. Production | Own harvest, roasting, packing, freshness alerts ✅ |
 | 4. Sales | Quote-to-delivery flow, cancellation with reversals, PDF receipts ✅ |
-| 5. Finance + admin | Expenses, settlement, cash flow, reconciliation, income statement, settings, integrity panel |
+| 5. Finance + admin | Expenses, settlement, cash flow, reconciliation, income statement, settings, integrity panel ✅ |
 | 6. VA1 delivery | Development seed, test coverage, technical documentation |
 | 7–9. VA2 | Analytical views, dashboards, data analysis and recommendations |
