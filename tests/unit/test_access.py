@@ -78,3 +78,20 @@ def test_sales_permissions_follow_role_matrix(role, can_sell, can_cancel):
     assert has_permission(user, Permission.MANAGE_SALES) is can_sell
     assert has_permission(user, Permission.CANCEL_SALES) is can_cancel
     assert has_permission(user, Permission.APPROVE_DISCOUNTS) is can_cancel
+
+
+@pytest.mark.parametrize(
+    ("role", "can_manage", "can_reverse", "can_configure"),
+    [
+        (Role.ADMIN, True, True, True),
+        (Role.MANAGER, True, True, False),
+        (Role.FINANCE, True, False, False),
+        (Role.SALES, False, False, False),
+        (Role.VIEWER, False, False, False),
+    ],
+)
+def test_finance_permissions_follow_role_matrix(role, can_manage, can_reverse, can_configure):
+    user = make_user(role)
+    assert has_permission(user, Permission.MANAGE_FINANCE) is can_manage
+    assert has_permission(user, Permission.REVERSE_SETTLEMENTS) is can_reverse
+    assert has_permission(user, Permission.MANAGE_SETTINGS) is can_configure

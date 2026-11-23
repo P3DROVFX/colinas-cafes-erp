@@ -16,6 +16,9 @@ PAGES = [
     ("packing", "render_packing_page", "Envases"),
     ("home", "render_home_page", "Olá, Manager!"),
     ("sales", "render_sales_page", "Vendas"),
+    ("cash_flow", "render_cash_flow_page", "Fluxo de caixa"),
+    ("reconciliation", "render_reconciliation_page", "Conciliação"),
+    ("income_statement", "render_income_statement_page", "Resultado (DRE gerencial)"),
 ]
 
 
@@ -67,3 +70,18 @@ def _assert_viewer_cannot(make_user, module, function, action):
 def test_sales_page_offers_new_sale_only_to_sellers(make_user):
     assert "Nova venda" in button_labels(run_page("sales", "render_sales_page", make_user(Role.SALES)))
     _assert_viewer_cannot(make_user, "sales", "render_sales_page", "Nova venda")
+
+
+def test_finance_staff_creates_entries_and_viewer_only_reads(make_user):
+    assert "Novo lançamento" in button_labels(
+        run_page("finance_entries", "render_finance_entries_page", make_user(Role.FINANCE))
+    )
+    _assert_viewer_cannot(make_user, "finance_entries", "render_finance_entries_page", "Novo lançamento")
+
+
+def test_admin_edits_settings_and_manager_is_refused(make_user):
+    app = run_page("settings", "render_settings_page", make_user(Role.ADMIN))
+    assert not app.exception
+    assert len(app.number_input) > 10
+    manager_app = run_page("settings", "render_settings_page", make_user(Role.MANAGER))
+    assert manager_app.error[0].value == "Você não tem permissão para executar esta ação."

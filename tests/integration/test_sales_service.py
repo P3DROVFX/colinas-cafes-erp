@@ -8,11 +8,9 @@ from core.clock import today
 from core.errors import AccessDeniedError, BusinessRuleError
 from domain.access import Role
 from domain.brazil import PersonType
-from domain.catalog import RoastProfile
 from domain.effects import EntryChange
 from domain.inventory import StockItemKind, StockItemRef
 from domain.partners import CustomerInput, Segment
-from domain.production import PackingInput, RoastBatchStatus, RoastInput
 from domain.purchasing import PurchaseStatus
 from domain.sales import (
     Channel,
@@ -27,12 +25,10 @@ from domain.sales import (
 from services import integrity as integrity_service
 from services import inventory as inventory_service
 from services import partners as partners_service
-from services import production as production_service
 from services import purchases as purchases_service
 from services import sales as sales_service
-from services.production import PeriodFilters
 from services.purchases import PurchaseFilters
-from tests.integration.demo_catalog import build_demo_catalog
+from tests.integration.demo_catalog import build_stocked_catalog
 from ui.documents import purchase_order_pdf, sale_document_pdf
 
 
@@ -43,17 +39,7 @@ def manager(make_user):
 
 @pytest.fixture
 def catalog(manager):
-    catalog = build_demo_catalog(manager)
-    for data in (catalog.coffee_purchase(), catalog.packaging_purchase()):
-        purchases_service.create_purchase(manager, data)
-    for purchase in purchases_service.list_purchases(
-        manager, PurchaseFilters(today(), today(), None, (PurchaseStatus.PENDING,))
-    ):
-        purchases_service.receive_purchase(manager, purchase["id"])
-    production_service.roast(manager, RoastInput(catalog.coffee_id, RoastProfile.MEDIUM, Decimal("10"), Decimal("8.4")))
-    [batch] = production_service.list_roast_batches(manager, PeriodFilters(today(), today()), (RoastBatchStatus.OPEN,))
-    production_service.pack(manager, PackingInput(catalog.product_id, batch["id"], 20))
-    return catalog
+    return build_stocked_catalog(manager)
 
 
 @pytest.fixture

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from decimal import Decimal
 
+from core.clock import today
 from domain.access import User
 from domain.brazil import PersonType
 from domain.catalog import (
@@ -15,9 +16,14 @@ from domain.catalog import (
 )
 from domain.inventory import StockItemKind
 from domain.partners import SupplierInput, SupplyType
-from domain.purchasing import PurchaseInput, PurchaseItemInput
+from domain.production import PackingInput, RoastBatchStatus, RoastInput
+from domain.purchasing import PurchaseInput, PurchaseItemInput, PurchaseStatus
 from services import catalog as catalog_service
 from services import partners as partners_service
+from services import production as production_service
+from services import purchases as purchases_service
+from services.production import PeriodFilters
+from services.purchases import PurchaseFilters
 
 
 @dataclass(frozen=True)
@@ -99,3 +105,17 @@ def create_own_coffee(manager: User) -> int:
         manager,
         GreenCoffeeInput("COLBOU", "Colinas Bourbon Amarelo", farm_id, "Bourbon Amarelo", Process.NATURAL, 2026),
     )
+
+
+def build_stocked_catalog(manager: User) -> DemoCatalog:
+    """Demo steps 2 to 5: catalog, both purchases received, one roast and 20 bags packed."""
+    catalog = build_demo_catalog(manager)
+    for data in (catalog.coffee_purchase(), catalog.packaging_purchase()):
+        purchases_service.create_purchase(manager, data)
+    pending = PurchaseFilters(today(), today(), None, (PurchaseStatus.PENDING,))
+    for purchase in purchases_service.list_purchases(manager, pending):
+        purchases_service.receive_purchase(manager, purchase["id"])
+    production_service.roast(manager, RoastInput(catalog.coffee_id, RoastProfile.MEDIUM, Decimal("10"), Decimal("8.4")))
+    [batch] = production_service.list_roast_batches(manager, PeriodFilters(today(), today()), (RoastBatchStatus.OPEN,))
+    production_service.pack(manager, PackingInput(catalog.product_id, batch["id"], 20))
+    return catalog
