@@ -15,6 +15,7 @@ PAGES = [
     ("roasting", "render_roasting_page", "Torras"),
     ("packing", "render_packing_page", "Envases"),
     ("home", "render_home_page", "Olá, Manager!"),
+    ("sales", "render_sales_page", "Vendas"),
 ]
 
 
@@ -41,7 +42,7 @@ def test_production_creates_orders(make_user):
 
 def test_integrity_panel_reports_all_checks_ok(make_user):
     app = run_page("integrity", "render_integrity_page", make_user(Role.FINANCE))
-    assert app.metric[0].value == "6 de 6"
+    assert app.metric[0].value == "9 de 9"
 
 
 @pytest.mark.parametrize(
@@ -54,6 +55,15 @@ def test_integrity_panel_reports_all_checks_ok(make_user):
 )
 def test_production_pages_offer_actions_only_to_production_staff(make_user, module, function, action):
     assert action in button_labels(run_page(module, function, make_user(Role.PRODUCTION)))
+    _assert_viewer_cannot(make_user, module, function, action)
+
+
+def _assert_viewer_cannot(make_user, module, function, action):
     viewer_app = run_page(module, function, make_user(Role.VIEWER))
     assert not viewer_app.exception
     assert action not in button_labels(viewer_app)
+
+
+def test_sales_page_offers_new_sale_only_to_sellers(make_user):
+    assert "Nova venda" in button_labels(run_page("sales", "render_sales_page", make_user(Role.SALES)))
+    _assert_viewer_cannot(make_user, "sales", "render_sales_page", "Nova venda")

@@ -61,3 +61,20 @@ def test_production_permissions_follow_role_matrix(role, can_view, can_manage):
     user = make_user(role)
     assert has_permission(user, Permission.VIEW_PRODUCTION) is can_view
     assert has_permission(user, Permission.MANAGE_PRODUCTION) is can_manage
+
+
+@pytest.mark.parametrize(
+    ("role", "can_sell", "can_cancel"),
+    [
+        (Role.MANAGER, True, True),
+        (Role.SALES, True, False),
+        (Role.PRODUCTION, False, False),
+        (Role.VIEWER, False, False),
+    ],
+)
+def test_sales_permissions_follow_role_matrix(role, can_sell, can_cancel):
+    user = make_user(role)
+    assert has_permission(user, Permission.VIEW_SALES) is (role is not Role.PRODUCTION)
+    assert has_permission(user, Permission.MANAGE_SALES) is can_sell
+    assert has_permission(user, Permission.CANCEL_SALES) is can_cancel
+    assert has_permission(user, Permission.APPROVE_DISCOUNTS) is can_cancel
