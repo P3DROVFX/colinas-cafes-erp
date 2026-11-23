@@ -19,13 +19,18 @@ class StockTable:
     is_active: str
 
 
+ROAST_BATCH_LABEL = (
+    "roast_batches.code || ' · ' || (SELECT gc.code FROM green_coffees gc WHERE gc.id = roast_batches.green_coffee_id)"
+)
+
 STOCK_TABLES: dict[StockItemKind, StockTable] = {
     StockItemKind.GREEN_COFFEE: StockTable(
         "green_coffees", "green_coffee_id", "stock_kg", "avg_cost_per_kg", "code || ' · ' || name", "min_stock_kg",
         "is_active",
     ),
     StockItemKind.ROAST_BATCH: StockTable(
-        "roast_batches", "roast_batch_id", "stock_kg", "cost_per_kg", "code", "NULL::numeric", "status = 'OPEN'"
+        "roast_batches", "roast_batch_id", "stock_kg", "cost_per_kg", ROAST_BATCH_LABEL, "NULL::numeric",
+        "status = 'OPEN'",
     ),
     StockItemKind.PACKAGING_ITEM: StockTable(
         "packaging_items", "packaging_item_id", "stock", "avg_unit_cost", "name", "min_stock", "is_active"
@@ -36,7 +41,7 @@ STOCK_TABLES: dict[StockItemKind, StockTable] = {
 }  # fmt: skip
 
 MOVEMENT_ITEM_LABEL = """
-    COALESCE(g.code || ' · ' || g.name, r.code, pk.name, pr.sku || ' · ' || pr.name) AS item_label,
+    COALESCE(g.code || ' · ' || g.name, r.code || ' · ' || rg.code, pk.name, pr.sku || ' · ' || pr.name) AS item_label,
     CASE WHEN m.green_coffee_id IS NOT NULL THEN 'GREEN_COFFEE'
          WHEN m.roast_batch_id IS NOT NULL THEN 'ROAST_BATCH'
          WHEN m.packaging_item_id IS NOT NULL THEN 'PACKAGING_ITEM'
@@ -46,6 +51,7 @@ MOVEMENT_ITEM_LABEL = """
 MOVEMENT_ITEM_JOINS = """
     LEFT JOIN green_coffees g ON g.id = m.green_coffee_id
     LEFT JOIN roast_batches r ON r.id = m.roast_batch_id
+    LEFT JOIN green_coffees rg ON rg.id = r.green_coffee_id
     LEFT JOIN packaging_items pk ON pk.id = m.packaging_item_id
     LEFT JOIN products pr ON pr.id = m.product_id
 """
@@ -136,7 +142,9 @@ def list_item_movements(
     return connection.execute(query, (item.id, start_date, end_date)).fetchall()
 
 
-def list_source_movements(connection: Connection, source_module: str, source_id: int) -> list[dict[str, Any]]:
+def list_source_movements(
+    connection: Connection, source_module: str, source_id: int, movement_types: list[str] | None = None
+) -> list[dict[str, Any]]:
     return connection.execute(
         f"""
         SELECT m.id, m.movement_date, m.movement_type, m.quantity, m.unit_cost, m.total_value, m.balance_after,
@@ -144,7 +152,8 @@ def list_source_movements(connection: Connection, source_module: str, source_id:
         FROM stock_movements m
         {MOVEMENT_ITEM_JOINS}
         WHERE m.source_module = %s AND m.source_id = %s
+          AND (%s::text[] IS NULL OR m.movement_type = ANY(%s::text[]))
         ORDER BY m.id
         """,
-        (source_module, source_id),
+        (source_module, source_id, movement_types, movement_types),
     ).fetchall()

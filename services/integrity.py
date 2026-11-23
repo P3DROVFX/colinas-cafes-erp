@@ -53,6 +53,21 @@ CHECKS: tuple[IntegrityCheck, ...] = (
         "Compras recebidas têm títulos a pagar com o valor e o número de parcelas corretos",
         integrity_repository.received_purchases_with_wrong_payables,
     ),
+    IntegrityCheck(
+        "I7",
+        "Lotes torrados encerrados estão zerados e lotes zerados estão encerrados",
+        integrity_repository.roast_batches_with_inconsistent_status,
+    ),
+    IntegrityCheck(
+        "I8",
+        "Todo título gerado por uma operação aponta para um documento existente",
+        integrity_repository.entries_without_source_document,
+    ),
+    IntegrityCheck(
+        "I9",
+        "Valor das entradas de envase no estoque é igual ao valor dos lotes de envase",
+        integrity_repository.packing_value_differs_from_batches,
+    ),
 )
 
 

@@ -23,6 +23,7 @@ from domain.inventory import (
     plan_movement,
 )
 from repositories import inventory as inventory_repository
+from repositories import production as production_repository
 
 
 @dataclass(frozen=True, slots=True)
@@ -113,6 +114,9 @@ def adjust_inventory(actor: User, data: AdjustmentInput) -> OperationEffects:
     )
     with transaction(actor.email) as connection:
         balance = lock_balance(connection, data.item)
+        is_batch = data.item.kind is StockItemKind.ROAST_BATCH
+        if is_batch and not production_repository.is_roast_batch_open(connection, data.item.id):
+            raise BusinessRuleError(f"O lote {balance.label} está encerrado e não recebe ajustes.")
         quantity = adjustment_quantity(data.reason, balance.stock, data.counted_stock, data.lost_quantity)
         change = record_movement(
             connection,
@@ -128,4 +132,6 @@ def adjust_inventory(actor: User, data: AdjustmentInput) -> OperationEffects:
                 notes=notes,
             ),
         )
+        if is_batch and change.after == 0:
+            production_repository.close_roast_batch(connection, data.item.id)
     return OperationEffects(stock=[change])
