@@ -8,9 +8,10 @@ from core.clock import today
 from core.errors import AppError
 from domain.access import Permission, User, has_permission
 from domain.catalog import RoastProfile
+from domain.dates import add_months
 from domain.inventory import StockItemKind, format_quantity
 from domain.numbers import format_decimal
-from domain.production import PackingInput, add_months, packed_coffee_unit_cost, packing_consumed_kg
+from domain.production import PackingInput, packed_coffee_unit_cost, packing_consumed_kg
 from services import production as production_service
 from services.production import PackingMaterials, PeriodFilters
 from ui.effects import remember_effects, show_effects

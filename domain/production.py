@@ -1,4 +1,3 @@
-import calendar
 from dataclasses import dataclass, replace
 from datetime import date, timedelta
 from decimal import Decimal
@@ -157,12 +156,6 @@ def daily_prefix(letter: str, day: date) -> str:
 
 def daily_code(letter: str, day: date, sequence: int) -> str:
     return f"{daily_prefix(letter, day)}-{sequence:02d}"
-
-
-def add_months(start: date, months: int) -> date:
-    month_index = start.month - 1 + months
-    year, month = start.year + month_index // 12, month_index % 12 + 1
-    return date(year, month, min(start.day, calendar.monthrange(year, month)[1]))
 
 
 def packing_consumed_kg(bag_count: int, weight_g: int) -> Decimal:

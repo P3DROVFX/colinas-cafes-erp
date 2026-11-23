@@ -5,6 +5,7 @@ import pytest
 
 from core.errors import BusinessRuleError
 from domain.catalog import RoastProfile
+from domain.dates import add_months
 from domain.inventory import StockBalance, StockItemKind, StockItemRef
 from domain.production import (
     HarvestInput,
@@ -13,7 +14,6 @@ from domain.production import (
     RoastBatchStatus,
     RoastInput,
     RoastLimits,
-    add_months,
     can_close_batch,
     daily_code,
     describe_shortages,

@@ -10,7 +10,7 @@ from core.db import transaction
 from core.errors import BusinessRuleError
 from domain.access import Permission, User, ensure_permission, has_permission
 from domain.catalog import RoastProfile
-from domain.dates import resolve_business_date
+from domain.dates import add_months, resolve_business_date
 from domain.effects import EntryChange, OperationEffects, StockChange
 from domain.fields import require_text
 from domain.finance import EntryType
@@ -25,7 +25,6 @@ from domain.production import (
     RoastBatchStatus,
     RoastInput,
     RoastLimits,
-    add_months,
     can_close_batch,
     daily_code,
     daily_prefix,

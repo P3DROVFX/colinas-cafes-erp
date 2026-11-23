@@ -8,8 +8,9 @@ from core.clock import today
 from core.errors import AccessDeniedError, BusinessRuleError
 from domain.access import Role
 from domain.catalog import RoastProfile
+from domain.dates import add_months
 from domain.inventory import AdjustmentReason, MovementType, StockItemKind, StockItemRef
-from domain.production import HarvestInput, PackingInput, RoastBatchStatus, RoastInput, add_months
+from domain.production import HarvestInput, PackingInput, RoastBatchStatus, RoastInput
 from domain.purchasing import PurchaseStatus
 from services import catalog as catalog_service
 from services import integrity as integrity_service
