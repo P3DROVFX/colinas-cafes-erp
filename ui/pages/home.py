@@ -9,6 +9,7 @@ from ui.session import available_pages, get_session_user
 
 SHORTCUTS = ("vendas", "torras", "envases", "compras", "contas", "fluxo-de-caixa", "estoque", "extrato")
 MAX_SHORTCUTS = 4
+MAX_ALERT_ITEMS = 5
 
 
 def _render_cards(summary: HomeSummary) -> None:
@@ -29,12 +30,18 @@ def _render_cards(summary: HomeSummary) -> None:
             st.caption(caption)
 
 
+def _summarize(items: list[str]) -> str:
+    if len(items) <= MAX_ALERT_ITEMS:
+        return ", ".join(items)
+    return f"{', '.join(items[:MAX_ALERT_ITEMS])} e mais {len(items) - MAX_ALERT_ITEMS}"
+
+
 def _render_alerts(summary: HomeSummary) -> None:
     alerts = []
     if summary.below_minimum:
-        alerts.append((f"Abaixo do estoque mínimo: {', '.join(summary.below_minimum)}.", ":material/inventory_2:"))
+        alerts.append((f"Abaixo do estoque mínimo: {_summarize(summary.below_minimum)}.", ":material/inventory_2:"))
     if summary.stale_batches:
-        codes = ", ".join(f"{row['code']} ({row['days_since_roast']} dias)" for row in summary.stale_batches)
+        codes = _summarize([f"{row['code']} ({row['days_since_roast']} dias)" for row in summary.stale_batches])
         alerts.append(
             (f"Lotes torrados há mais de {summary.freshness_days} dias sem envase: {codes}.", ":material/schedule:")
         )
