@@ -29,12 +29,12 @@ Before the system, stock, roasting, orders and bills lived in disconnected sprea
 |---|---|---|
 | Authentication & access control | Google sign-in, user allow-list, roles, role-based navigation, audit trail | ✅ Sign-in, roles and user management |
 | Master data | Farms, suppliers, green coffees, packaging, products (SKUs), customers, financial categories and accounts | ✅ CRUD with search, deactivation and CPF/CNPJ validation |
-| Purchasing | Purchase orders, receiving, cancellation and reversal, installment payables | ✅ Orders, receiving with freight allocation, cancellation, reversal |
+| Purchasing | Purchase orders, receiving, cancellation and reversal, installment payables | ✅ Orders, receiving with freight allocation, cancellation, reversal, PDF order |
 | Inventory | Stock positions, movement ledger, minimum-stock alerts, inventory adjustments, storage location | ✅ Single movement path with weighted average cost, positions, ledger, adjustments |
 | Production | Own harvest intake, roasting (weight loss and cost), packing (bag cost, freshness) | ✅ Harvest with payable, roasting with weight-loss limits, packing with batch compatibility, batch closing, freshness alerts |
-| Sales | Quotes, orders, invoicing, shipping, delivery, cancellation, receipts | Planned |
-| Finance | Payables and receivables, operating expenses, settlement, cash flow, reconciliation, income statement | 🟡 Payables from purchases and entry list |
-| Administration | Users, settings, data integrity panel | 🟡 Users and integrity panel (stock, purchase and production checks) |
+| Sales | Quotes, orders, invoicing, shipping, delivery, cancellation, receipts | ✅ Quotes with validity, confirmation with cost snapshots, card fees and credit checks, shipping, delivery, cancellation with reversals, PDF receipts |
+| Finance | Payables and receivables, operating expenses, settlement, cash flow, reconciliation, income statement | 🟡 Entries from purchases, harvests and sales; entry list |
+| Administration | Users, settings, data integrity panel | 🟡 Users and integrity panel (stock, purchase, production and sales checks) |
 | Business Intelligence (VA2) | Analytical views, KPIs, dashboards, alerts | Planned |
 
 Every integrated operation runs in a **single database transaction**, so receiving a purchase, roasting, packing or confirming a sale either updates stock, finance and history together or changes nothing.
@@ -183,7 +183,7 @@ Integration tests **drop and recreate** the `public` schema of the test database
 | 1. Master data | CRUD for all master entities with deactivation of referenced records ✅ |
 | 2. Inventory + purchasing | Stock ledger, weighted average cost, purchase receiving, payables ✅ |
 | 3. Production | Own harvest, roasting, packing, freshness alerts ✅ |
-| 4. Sales | Quote-to-delivery flow, cancellation with reversals, PDF receipts |
+| 4. Sales | Quote-to-delivery flow, cancellation with reversals, PDF receipts ✅ |
 | 5. Finance + admin | Expenses, settlement, cash flow, reconciliation, income statement, settings, integrity panel |
 | 6. VA1 delivery | Development seed, test coverage, technical documentation |
 | 7–9. VA2 | Analytical views, dashboards, data analysis and recommendations |
