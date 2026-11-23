@@ -7,9 +7,8 @@ from psycopg import Connection
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
+from core.clock import TIMEZONE_NAME
 from core.config import get_database_url
-
-TIMEZONE = "America/Recife"
 
 Params = Sequence[Any] | Mapping[str, Any] | None
 
@@ -18,7 +17,7 @@ _pool_lock = Lock()
 
 
 def _configure_connection(connection: Connection) -> None:
-    connection.execute(f"SET TIME ZONE '{TIMEZONE}'")
+    connection.execute(f"SET TIME ZONE '{TIMEZONE_NAME}'")
     connection.commit()
 
 

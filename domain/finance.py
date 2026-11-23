@@ -1,10 +1,13 @@
 from dataclasses import dataclass, replace
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from enum import StrEnum
 
 from core.errors import BusinessRuleError
 from domain.fields import require_text
+from domain.numbers import round_money
+
+INSTALLMENT_INTERVAL_DAYS = 30
 
 
 class EntryType(StrEnum):
@@ -19,6 +22,19 @@ class DreGroup(StrEnum):
     INVENTORY = "INVENTORY"
     SELLING_COST = "SELLING_COST"
     OPERATING_EXPENSE = "OPERATING_EXPENSE"
+
+
+class EntryStatus(StrEnum):
+    PENDING = "PENDING"
+    SETTLED = "SETTLED"
+    CANCELLED = "CANCELLED"
+
+
+class EntryDisplayStatus(StrEnum):
+    PENDING = "PENDING"
+    OVERDUE = "OVERDUE"
+    SETTLED = "SETTLED"
+    CANCELLED = "CANCELLED"
 
 
 class AccountKind(StrEnum):
@@ -65,3 +81,33 @@ def validate_financial_account(data: FinancialAccountInput, today: date) -> Fina
     if data.opening_date > today:
         raise BusinessRuleError("A data do saldo inicial não pode estar no futuro.")
     return replace(data, name=require_text(data.name, "Informe o nome da conta."))
+
+
+@dataclass(frozen=True, slots=True)
+class Installment:
+    number: int
+    count: int
+    amount: Decimal
+    due_date: date
+
+
+def split_installments(total: Decimal, count: int, start_date: date, first_due_days: int) -> list[Installment]:
+    if count < 1:
+        raise BusinessRuleError("O número de parcelas deve ser pelo menos 1.")
+    base = round_money(total / count)
+    amounts = [base] * (count - 1) + [total - base * (count - 1)]
+    return [
+        Installment(
+            number=index + 1,
+            count=count,
+            amount=amount,
+            due_date=start_date + timedelta(days=first_due_days + INSTALLMENT_INTERVAL_DAYS * index),
+        )
+        for index, amount in enumerate(amounts)
+    ]
+
+
+def display_status(status: EntryStatus, due_date: date, today: date) -> EntryDisplayStatus:
+    if status is EntryStatus.PENDING and due_date < today:
+        return EntryDisplayStatus.OVERDUE
+    return EntryDisplayStatus(status.value)

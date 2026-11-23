@@ -15,24 +15,48 @@ class Role(StrEnum):
 
 class Permission(StrEnum):
     MANAGE_USERS = "MANAGE_USERS"
+    BACKDATE_OPERATIONS = "BACKDATE_OPERATIONS"
     MANAGE_CATALOG = "MANAGE_CATALOG"
     MANAGE_PRODUCTS = "MANAGE_PRODUCTS"
     MANAGE_PRICES = "MANAGE_PRICES"
     MANAGE_CUSTOMERS = "MANAGE_CUSTOMERS"
     MANAGE_SUPPLIERS = "MANAGE_SUPPLIERS"
-    VIEW_FINANCE_SETUP = "VIEW_FINANCE_SETUP"
+    VIEW_FINANCE = "VIEW_FINANCE"
     MANAGE_FINANCE_SETUP = "MANAGE_FINANCE_SETUP"
+    VIEW_PURCHASES = "VIEW_PURCHASES"
+    MANAGE_PURCHASES = "MANAGE_PURCHASES"
+    RECEIVE_PURCHASES = "RECEIVE_PURCHASES"
+    CANCEL_PURCHASES = "CANCEL_PURCHASES"
+    ADJUST_INVENTORY = "ADJUST_INVENTORY"
+    VIEW_INTEGRITY = "VIEW_INTEGRITY"
 
+
+ADMIN_ONLY_PERMISSIONS = frozenset({Permission.MANAGE_USERS, Permission.BACKDATE_OPERATIONS})
 
 ROLE_PERMISSIONS: dict[Role, frozenset[Permission]] = {
     Role.ADMIN: frozenset(Permission),
-    Role.MANAGER: frozenset(Permission) - {Permission.MANAGE_USERS},
-    Role.PRODUCTION: frozenset({Permission.MANAGE_CATALOG, Permission.MANAGE_PRODUCTS}),
+    Role.MANAGER: frozenset(Permission) - ADMIN_ONLY_PERMISSIONS,
+    Role.PRODUCTION: frozenset(
+        {
+            Permission.MANAGE_CATALOG,
+            Permission.MANAGE_PRODUCTS,
+            Permission.VIEW_PURCHASES,
+            Permission.MANAGE_PURCHASES,
+            Permission.RECEIVE_PURCHASES,
+        }
+    ),
     Role.SALES: frozenset({Permission.MANAGE_CUSTOMERS}),
     Role.FINANCE: frozenset(
-        {Permission.MANAGE_SUPPLIERS, Permission.VIEW_FINANCE_SETUP, Permission.MANAGE_FINANCE_SETUP}
+        {
+            Permission.MANAGE_SUPPLIERS,
+            Permission.VIEW_FINANCE,
+            Permission.MANAGE_FINANCE_SETUP,
+            Permission.VIEW_PURCHASES,
+            Permission.MANAGE_PURCHASES,
+            Permission.VIEW_INTEGRITY,
+        }
     ),
-    Role.VIEWER: frozenset({Permission.VIEW_FINANCE_SETUP}),
+    Role.VIEWER: frozenset({Permission.VIEW_FINANCE, Permission.VIEW_PURCHASES}),
 }
 
 
