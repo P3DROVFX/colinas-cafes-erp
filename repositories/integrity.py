@@ -96,3 +96,44 @@ def packing_value_differs_from_batches(connection: Connection) -> list[dict[str,
         WHERE movements.total <> batches.total
         """
     ).fetchall()
+
+
+def invoiced_sales_without_matching_receivable(connection: Connection) -> list[dict[str, Any]]:
+    return connection.execute(
+        """
+        SELECT s.number AS item, s.total_amount
+        FROM sales s
+        WHERE s.status IN ('CONFIRMED', 'SHIPPED', 'DELIVERED')
+          AND NOT EXISTS (
+              SELECT 1 FROM financial_entries e
+              WHERE e.source_module = 'SALES' AND e.source_id = s.id AND e.entry_type = 'RECEIVABLE'
+                AND e.status <> 'CANCELLED' AND e.amount = s.total_amount
+          )
+        """
+    ).fetchall()
+
+
+def sales_with_wrong_stock_out(connection: Connection) -> list[dict[str, Any]]:
+    return connection.execute(
+        """
+        SELECT s.number AS item, items.total AS items_total, COALESCE(-movements.total, 0) AS stock_out_total
+        FROM sales s
+        JOIN (SELECT sale_id, SUM(quantity) AS total FROM sale_items GROUP BY sale_id) items ON items.sale_id = s.id
+        LEFT JOIN (
+            SELECT source_id, SUM(quantity) AS total FROM stock_movements
+            WHERE source_module = 'SALES' AND movement_type = 'SALE_OUT' AND product_id IS NOT NULL
+            GROUP BY source_id
+        ) movements ON movements.source_id = s.id
+        WHERE s.status IN ('CONFIRMED', 'SHIPPED', 'DELIVERED') AND items.total <> COALESCE(-movements.total, 0)
+        """
+    ).fetchall()
+
+
+def invoiced_items_without_cost_snapshot(connection: Connection) -> list[dict[str, Any]]:
+    return connection.execute(
+        """
+        SELECT s.number AS item, p.sku
+        FROM sale_items i JOIN sales s ON s.id = i.sale_id JOIN products p ON p.id = i.product_id
+        WHERE s.status IN ('CONFIRMED', 'SHIPPED', 'DELIVERED') AND i.unit_cost_snapshot IS NULL
+        """
+    ).fetchall()

@@ -49,9 +49,24 @@ CHECKS: tuple[IntegrityCheck, ...] = (
         _for_every_stock_kind(integrity_repository.last_balance_differs_from_stock),
     ),
     IntegrityCheck(
+        "I3",
+        "Vendas faturadas têm título a receber não cancelado com o valor total",
+        integrity_repository.invoiced_sales_without_matching_receivable,
+    ),
+    IntegrityCheck(
+        "I4",
+        "Baixa de estoque de cada venda é igual à soma dos itens",
+        integrity_repository.sales_with_wrong_stock_out,
+    ),
+    IntegrityCheck(
         "I5",
         "Compras recebidas têm títulos a pagar com o valor e o número de parcelas corretos",
         integrity_repository.received_purchases_with_wrong_payables,
+    ),
+    IntegrityCheck(
+        "I6",
+        "Itens de vendas faturadas têm o custo registrado no momento da venda",
+        integrity_repository.invoiced_items_without_cost_snapshot,
     ),
     IntegrityCheck(
         "I7",

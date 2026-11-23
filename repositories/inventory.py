@@ -45,7 +45,8 @@ MOVEMENT_ITEM_LABEL = """
     CASE WHEN m.green_coffee_id IS NOT NULL THEN 'GREEN_COFFEE'
          WHEN m.roast_batch_id IS NOT NULL THEN 'ROAST_BATCH'
          WHEN m.packaging_item_id IS NOT NULL THEN 'PACKAGING_ITEM'
-         ELSE 'PRODUCT' END AS item_kind
+         ELSE 'PRODUCT' END AS item_kind,
+    COALESCE(m.green_coffee_id, m.roast_batch_id, m.packaging_item_id, m.product_id) AS item_id
 """
 
 MOVEMENT_ITEM_JOINS = """
