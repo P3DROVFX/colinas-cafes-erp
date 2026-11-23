@@ -1,8 +1,10 @@
 from domain.access import Role
 from domain.brazil import PersonType
 from domain.catalog import Grind, PackagingKind, Process, RoastProfile
-from domain.finance import AccountKind, DreGroup, EntryType
+from domain.finance import AccountKind, DreGroup, EntryDisplayStatus, EntryType
+from domain.inventory import AdjustmentReason, MovementType, SourceModule, StockItemKind, StockStatus
 from domain.partners import Segment, SupplyType
+from domain.purchasing import PurchaseStatus
 
 ROLE_LABELS: dict[Role, str] = {
     Role.ADMIN: "Administrador",
@@ -78,3 +80,63 @@ ACCOUNT_KIND_LABELS: dict[AccountKind, str] = {
 }
 
 ACTIVE_LABELS: dict[bool, str] = {True: "Ativo", False: "Inativo"}
+
+
+BadgeStyle = tuple[str, str, str]
+
+PURCHASE_STATUS_BADGES: dict[PurchaseStatus, BadgeStyle] = {
+    PurchaseStatus.PENDING: ("Pendente", "blue", ":material/schedule:"),
+    PurchaseStatus.RECEIVED: ("Recebida", "green", ":material/check_circle:"),
+    PurchaseStatus.CANCELLED: ("Cancelada", "gray", ":material/block:"),
+    PurchaseStatus.REVERSED: ("Estornada", "gray", ":material/undo:"),
+}
+
+ENTRY_STATUS_BADGES: dict[EntryDisplayStatus, BadgeStyle] = {
+    EntryDisplayStatus.PENDING: ("Pendente", "blue", ":material/schedule:"),
+    EntryDisplayStatus.OVERDUE: ("Vencido", "red", ":material/error:"),
+    EntryDisplayStatus.SETTLED: ("Liquidado", "green", ":material/check_circle:"),
+    EntryDisplayStatus.CANCELLED: ("Cancelado", "gray", ":material/block:"),
+}
+
+STOCK_ITEM_KIND_LABELS: dict[StockItemKind, str] = {
+    StockItemKind.GREEN_COFFEE: "Cafés verdes",
+    StockItemKind.ROAST_BATCH: "Lotes torrados",
+    StockItemKind.PACKAGING_ITEM: "Embalagens",
+    StockItemKind.PRODUCT: "Produtos",
+}
+
+MOVEMENT_TYPE_LABELS: dict[MovementType, str] = {
+    MovementType.PURCHASE_IN: "Entrada por compra",
+    MovementType.PURCHASE_REVERSAL: "Estorno de compra",
+    MovementType.HARVEST_IN: "Entrada por colheita",
+    MovementType.ROAST_OUT: "Saída para torra",
+    MovementType.ROAST_IN: "Entrada da torra",
+    MovementType.PACKING_OUT: "Saída para envase",
+    MovementType.PACKING_IN: "Entrada do envase",
+    MovementType.SALE_OUT: "Saída por venda",
+    MovementType.SALE_REVERSAL: "Estorno de venda",
+    MovementType.INVENTORY_ADJUSTMENT: "Ajuste de inventário",
+}
+
+ADJUSTMENT_REASON_LABELS: dict[AdjustmentReason, str] = {
+    AdjustmentReason.COUNT: "Contagem",
+    AdjustmentReason.LOSS: "Perda",
+    AdjustmentReason.DAMAGE: "Avaria",
+    AdjustmentReason.TASTING: "Degustação",
+    AdjustmentReason.EXPIRED: "Vencimento",
+    AdjustmentReason.OPENING: "Implantação de saldo",
+}
+
+SOURCE_MODULE_LABELS: dict[SourceModule, str] = {
+    SourceModule.PURCHASES: "Compras",
+    SourceModule.PRODUCTION: "Produção",
+    SourceModule.SALES: "Vendas",
+    SourceModule.INVENTORY: "Estoque",
+    SourceModule.MANUAL: "Manual",
+}
+
+STOCK_STATUS_LABELS: dict[StockStatus, str] = {
+    StockStatus.OK: "OK",
+    StockStatus.BELOW_MINIMUM: "Abaixo do mínimo",
+    StockStatus.EMPTY: "Zerado",
+}
