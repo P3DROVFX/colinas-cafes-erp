@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from typing import Any
 
 from psycopg import Connection
 
 from core.clock import today
 from core.db import transaction
-from core.errors import BusinessRuleError, ConfigurationError
+from core.errors import BusinessRuleError
 from domain.access import Permission, User, ensure_permission, has_permission
 from domain.catalog import RoastProfile
 from domain.dates import resolve_business_date
@@ -45,8 +45,9 @@ from repositories import finance as finance_repository
 from repositories import inventory as inventory_repository
 from repositories import partners as partners_repository
 from repositories import production as production_repository
-from repositories.settings import find_setting_values
+from services.finance import require_system_category_id
 from services.inventory import MovementRequest, lock_balance, record_movement
+from services.parameters import decimal_settings, int_setting
 
 HARVEST_CATEGORY = "Custos de colheita e beneficiamento"
 HARVEST_MOVEMENTS = [MovementType.HARVEST_IN.value]
@@ -116,21 +117,9 @@ def _ensure_period(filters: PeriodFilters) -> None:
         raise BusinessRuleError("A data inicial deve ser anterior à data final.")
 
 
-def _decimal_settings(connection: Connection, keys: list[str]) -> dict[str, Decimal]:
-    values = find_setting_values(connection, keys)
-    try:
-        return {key: Decimal(values[key]) for key in keys}
-    except (KeyError, TypeError, InvalidOperation) as error:
-        raise ConfigurationError("Parâmetros de produção ausentes ou inválidos. Revise os parâmetros.") from error
-
-
 def _roast_limits(connection: Connection) -> RoastLimits:
-    values = _decimal_settings(connection, list(ROAST_LIMIT_SETTINGS.values()))
+    values = decimal_settings(connection, list(ROAST_LIMIT_SETTINGS.values()))
     return RoastLimits(**{field: values[key] for field, key in ROAST_LIMIT_SETTINGS.items()})
-
-
-def _int_setting(connection: Connection, key: str) -> int:
-    return int(_decimal_settings(connection, [key])[key])
 
 
 def _next_code(connection: Connection, table: str, letter: str, day: date) -> str:
@@ -154,13 +143,6 @@ def _ensure_harvest_origin(connection: Connection, data: HarvestInput) -> None:
         supply_type = partners_repository.find_supplier_supply_type(connection, data.service_supplier_id)
         if supply_type is not SupplyType.SERVICE:
             raise BusinessRuleError("O fornecedor do beneficiamento deve ser um fornecedor de serviços.")
-
-
-def _system_category_id(connection: Connection, name: str) -> int:
-    category_id = finance_repository.find_system_category_id(connection, name)
-    if category_id is None:
-        raise ConfigurationError(f"Categoria de sistema ausente: {name}.")
-    return category_id
 
 
 def register_harvest(actor: User, data: HarvestInput, harvest_date: date | None = None) -> HarvestResult:
@@ -202,7 +184,7 @@ def register_harvest(actor: User, data: HarvestInput, harvest_date: date | None 
             connection,
             {
                 "entry_type": EntryType.PAYABLE.value,
-                "category_id": _system_category_id(connection, HARVEST_CATEGORY),
+                "category_id": require_system_category_id(connection, HARVEST_CATEGORY),
                 "description": description,
                 "amount": data.total_cost,
                 "accrual_date": harvest_date,
@@ -324,7 +306,7 @@ def pack(actor: User, data: PackingInput, packing_date: date | None = None) -> P
         bag_cost = balances[product["bag_id"]].unit_cost
         label_cost = balances[product["label_id"]].unit_cost
         code = _next_code(connection, "packing_batches", "E", packing_date)
-        expiry_date = add_months(packing_date, _int_setting(connection, SHELF_LIFE_SETTING))
+        expiry_date = add_months(packing_date, int_setting(connection, SHELF_LIFE_SETTING))
         packing_id = production_repository.insert_packing_batch(
             connection,
             {
@@ -456,14 +438,14 @@ def list_stale_roast_batches(actor: User) -> tuple[int, list[dict[str, Any]]]:
     """RF-EST-02: open batches waiting longer than the freshness limit."""
     ensure_permission(actor, Permission.VIEW_PRODUCTION)
     with transaction(actor.email) as connection:
-        alert_days = _int_setting(connection, FRESHNESS_SETTING)
+        alert_days = int_setting(connection, FRESHNESS_SETTING)
         return alert_days, production_repository.list_stale_roast_batches(connection, today(), alert_days)
 
 
 def get_freshness_alert_days(actor: User) -> int:
     ensure_permission(actor, Permission.VIEW_PRODUCTION)
     with transaction(actor.email) as connection:
-        return _int_setting(connection, FRESHNESS_SETTING)
+        return int_setting(connection, FRESHNESS_SETTING)
 
 
 def list_packable_products(actor: User) -> list[dict[str, Any]]:
@@ -490,7 +472,7 @@ def get_packing_materials(actor: User, product_id: int) -> PackingMaterials:
             inventory_repository.find_stock_balance(connection, StockItemRef(StockItemKind.PACKAGING_ITEM, item_id))
             for item_id in (product["bag_id"], product["label_id"])
         )
-        return PackingMaterials(bag, label, _int_setting(connection, SHELF_LIFE_SETTING))
+        return PackingMaterials(bag, label, int_setting(connection, SHELF_LIFE_SETTING))
 
 
 def list_packing_batches(actor: User, filters: PeriodFilters) -> list[dict[str, Any]]:

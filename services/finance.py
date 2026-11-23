@@ -2,12 +2,28 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Any
 
+from psycopg import Connection
+
 from core.clock import today
 from core.db import transaction
-from core.errors import BusinessRuleError
+from core.errors import BusinessRuleError, ConfigurationError
 from domain.access import Permission, User, ensure_permission
 from domain.finance import EntryDisplayStatus, EntryType
 from repositories import finance as finance_repository
+
+
+def require_system_category_id(connection: Connection, name: str) -> int:
+    category_id = finance_repository.find_system_category_id(connection, name)
+    if category_id is None:
+        raise ConfigurationError(f"Categoria de sistema ausente: {name}.")
+    return category_id
+
+
+def require_system_account_id(connection: Connection, kind: str) -> int:
+    account_id = finance_repository.find_system_account_id(connection, kind)
+    if account_id is None:
+        raise ConfigurationError("Conta financeira do sistema ausente. Revise as contas cadastradas.")
+    return account_id
 
 
 @dataclass(frozen=True, slots=True)

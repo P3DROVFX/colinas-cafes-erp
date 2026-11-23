@@ -93,3 +93,22 @@ def list_entries(
             "statuses": display_statuses,
         },
     ).fetchall()
+
+
+def find_system_account_id(connection: Connection, kind: str) -> int | None:
+    row = connection.execute(
+        "SELECT id FROM financial_accounts WHERE kind = %s AND is_system ORDER BY id LIMIT 1", (kind,)
+    ).fetchone()
+    return row["id"] if row else None
+
+
+def list_settled_source_entries(
+    connection: Connection, source_module: str, source_id: int, entry_type: str
+) -> list[dict[str, Any]]:
+    return connection.execute(
+        """
+        SELECT id, amount, description FROM financial_entries
+        WHERE source_module = %s AND source_id = %s AND entry_type = %s AND status = 'SETTLED'
+        """,
+        (source_module, source_id, entry_type),
+    ).fetchall()

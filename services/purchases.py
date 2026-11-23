@@ -6,7 +6,7 @@ from psycopg import Connection
 
 from core.clock import today
 from core.db import transaction
-from core.errors import BusinessRuleError, ConfigurationError
+from core.errors import BusinessRuleError
 from domain.access import Permission, User, ensure_permission, has_permission
 from domain.dates import resolve_business_date
 from domain.effects import EntryChange, OperationEffects
@@ -28,6 +28,7 @@ from repositories import finance as finance_repository
 from repositories import inventory as inventory_repository
 from repositories import partners as partners_repository
 from repositories import purchases as purchases_repository
+from services.finance import require_system_category_id
 from services.inventory import MovementRequest, record_movement
 
 PURCHASE_CATEGORIES: dict[SupplyType, str] = {
@@ -158,9 +159,7 @@ def _create_payables(
     connection: Connection, actor: User, purchase: dict[str, Any], received_date: date
 ) -> list[EntryChange]:
     category_name = PURCHASE_CATEGORIES[SupplyType(purchase["supply_type"])]
-    category_id = finance_repository.find_system_category_id(connection, category_name)
-    if category_id is None:
-        raise ConfigurationError(f"Categoria de sistema ausente: {category_name}.")
+    category_id = require_system_category_id(connection, category_name)
     total = purchase["products_amount"] + purchase["freight_amount"]
     entries = []
     for installment in split_installments(total, purchase["installments"], received_date, purchase["first_due_days"]):
