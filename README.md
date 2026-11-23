@@ -29,12 +29,12 @@ Before the system, stock, roasting, orders and bills lived in disconnected sprea
 |---|---|---|
 | Authentication & access control | Google sign-in, user allow-list, roles, role-based navigation, audit trail | ✅ Sign-in, roles and user management |
 | Master data | Farms, suppliers, green coffees, packaging, products (SKUs), customers, financial categories and accounts | ✅ CRUD with search, deactivation and CPF/CNPJ validation |
-| Purchasing | Purchase orders, receiving, cancellation and reversal, installment payables | Planned |
-| Inventory | Stock positions, movement ledger, minimum-stock alerts, inventory adjustments, storage location | Planned |
+| Purchasing | Purchase orders, receiving, cancellation and reversal, installment payables | ✅ Orders, receiving with freight allocation, cancellation, reversal |
+| Inventory | Stock positions, movement ledger, minimum-stock alerts, inventory adjustments, storage location | ✅ Single movement path with weighted average cost, positions, ledger, adjustments |
 | Production | Own harvest intake, roasting (weight loss and cost), packing (bag cost, freshness) | Planned |
 | Sales | Quotes, orders, invoicing, shipping, delivery, cancellation, receipts | Planned |
-| Finance | Payables and receivables, operating expenses, settlement, cash flow, reconciliation, income statement | Planned |
-| Administration | Users, settings, data integrity panel | 🟡 Users done |
+| Finance | Payables and receivables, operating expenses, settlement, cash flow, reconciliation, income statement | 🟡 Payables from purchases and entry list |
+| Administration | Users, settings, data integrity panel | 🟡 Users and integrity panel (stock and purchase checks) |
 | Business Intelligence (VA2) | Analytical views, KPIs, dashboards, alerts | Planned |
 
 Every integrated operation runs in a **single database transaction**, so receiving a purchase, roasting, packing or confirming a sale either updates stock, finance and history together or changes nothing.
@@ -181,7 +181,7 @@ Integration tests **drop and recreate** the `public` schema of the test database
 |---|---|
 | 0. Foundation | Repository, schema, migrations, Google sign-in, roles, user management, deployment ✅ (deployment pending) |
 | 1. Master data | CRUD for all master entities with deactivation of referenced records ✅ |
-| 2. Inventory + purchasing | Stock ledger, weighted average cost, purchase receiving, payables |
+| 2. Inventory + purchasing | Stock ledger, weighted average cost, purchase receiving, payables ✅ |
 | 3. Production | Own harvest, roasting, packing, freshness alerts |
 | 4. Sales | Quote-to-delivery flow, cancellation with reversals, PDF receipts |
 | 5. Finance + admin | Expenses, settlement, cash flow, reconciliation, income statement, settings, integrity panel |
